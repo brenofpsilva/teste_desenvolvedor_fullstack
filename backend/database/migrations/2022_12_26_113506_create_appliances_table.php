@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('line');
             $table->string('color');
             $table->string('product_weight');
+            $table->decial('price', 10,2);
             $table->timestamps();
         });
     }
