@@ -1,24 +1,35 @@
-# frontend_teste
 
-## Project setup
-```
-yarn install
-```
+# Front-end
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
+Esse serviço tem o objetivo de consumir os dados gerador pelo projeto do backend
+## Stack utilizada
 
-### Compiles and minifies for production
-```
-yarn build
-```
+**Front-end:** Vuejs 3, Vuex, TailwindCSS, Sweetalert2
 
-### Lints and fixes files
-```
-yarn lint
+
+
+## Rodando localmente
+
+Clone o projeto
+
+```bash
+  git clone https://github.com/brenofpsilva/teste_desenvolvedor_fullstack.git
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Entre no diretório do projeto
+
+```bash
+  cd cd este_desenvolvedor_fullstack/front-end
+```
+
+Instale as dependências
+
+```bash
+  npm install
+```
+
+Inicie o servidor
+
+```bash
+  npm run serve ou vue serve
+```
