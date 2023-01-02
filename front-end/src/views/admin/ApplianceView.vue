@@ -16,7 +16,7 @@
         <div class="mt-7 overflow-x-auto">
             <table class="w-full whitespace-nowrap">
                 <tbody>
-                    <tr v-for="(item) in appliances" :key="item.id" tabindex="0" class="focus:outline-none h-16 border border-gray-100 rounded">
+                    <tr v-for="(item, index) in values" :key="item.id" tabindex="0" class="focus:outline-none h-16 border border-gray-100 rounded">
                         <td class="">
                             <div class="flex items-center pl-5">
                                 <p class="text-base font-medium leading-none text-gray-700 mr-2">{{ item.name }}</p>
@@ -64,7 +64,8 @@
                             </router-link>
                         </td>
                         <td class="pl-4">
-                            <button @click="deleteAppliance($route.params.id)" class="focus:ring-2 focus:ring-offset-2 focus:ring-red-300 text-sm leading-none text-white py-3 px-5 bg-red-400 rounded hover:bg-red-700 focus:outline-none">Excluir</button>
+                            <!-- <button class="focus:ring-2 focus:ring-offset-2 focus:ring-red-300 text-sm leading-none text-white py-3 px-5 bg-red-400 rounded hover:bg-red-700 focus:outline-none">Excluir</button> -->
+                            <button @click="deleteAppliance(item.id, index)" class="focus:ring-2 focus:ring-offset-2 focus:ring-red-300 text-sm leading-none text-white py-3 px-5 bg-red-400 rounded hover:bg-red-700 focus:outline-none">Excluir</button>
                         </td>
                         <!-- <td>
                             <div class="relative px-5 pt-2">
@@ -95,49 +96,72 @@
 </template>
 
 <script>
-import { onMounted, ref } from "vue"
+// import { onMounted, ref } from "vue"
 import api from "@/services/api"
 
 export default {
     name: 'ApplianceView',
-    setup() {
-        const appliances = ref([])
-
-        const fetchAppliances = () => api.get("/appliances")
-            .then((response) => {
-                console.log(response)
-                appliances.value = response.data.data
-            });
-
-        onMounted(fetchAppliances)
-
-        const deleteAppliance = (id) => api.delete(`/apliance/${id}` )
-        .then((response => {
-            console.log(response)
-            const Toast = this.$swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', this.$swal.stopTimer)
-                        toast.addEventListener('mouseleave', this.$swal.resumeTimer)
-                    }
+    data() {
+        return {
+            values: {},
+        };
+    },
+    methods: {
+        async fetchAppliances() {
+            await api.get("/appliances")
+                .then((response) => {
+                    console.log('dados', response)
+                    this.values = response.data.data
                 });
+        },
+        deleteAppliance(id, index) {
 
-                Toast.fire({
-                    icon: 'success',
-                    title: 'Produto excluido com sucesso.'
-                })
-                // this.$router.push('/admin/appliance')
-                this.$router.go()
-        }))
-        .catch(e => {
-                console.log(e);
-        });
+            this.$swal.fire({
+                title: "Deseja realmente excluir o item?",
+                text: "Essa ação não poderá ser desfeita!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Confirmar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
 
-        return { appliances, deleteAppliance }
+                    api.delete(`/appliances/${id}`, null, {
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then((response => {
+                            console.log('delete', response)
+                            this.values.splice(index, 1)
+                            const Toast = this.$swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', this.$swal.stopTimer)
+                                    toast.addEventListener('mouseleave', this.$swal.resumeTimer)
+                                }
+                            });
+                            Toast.fire({
+                                icon: 'success',
+                                title: response.data.message
+                            })
+                        }))
+                        .catch(e => {
+                            console.log(e);
+                        })
+                }
+            })
+
+        }
+    },
+    mounted() {
+        this.fetchAppliances();
     }
 }
 </script>
