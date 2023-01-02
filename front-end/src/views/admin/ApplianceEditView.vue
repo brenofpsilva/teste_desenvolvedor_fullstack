@@ -126,15 +126,11 @@
 </VueYupValidation>
 </template>
 
-    
 <script>
 import * as yup from "yup"
 import { ptShort } from 'yup-locale-pt'
 import VueYupValidation from "@/components/vueYuoValidation/index"
 import api from '@/services/api'
-
-// import { onMounted, ref } from "vue"
-// import { useRoute } from 'vue-router'
 
 export default {
     components: {
@@ -175,15 +171,25 @@ export default {
     methods: {
         fetchAppliance() {
             api.get(`/appliances/${this.$route.params.id}`)
-            .then((response) => {
-                console.log(response)
-                this.values = response.data.data
-            });
+                .then((response) => {
+                    console.log(response.data.data.image)
+                    this.values.name = response.data.data.name
+                    this.values.brand = response.data.data.brand
+                    this.values.reference = response.data.data.reference
+                    this.values.line = response.data.data.line
+                    this.values.color = response.data.data.color
+                    this.values.product_weight = response.data.data.product_weight
+                    this.values.voltage = response.data.data.voltage
+                    this.values.status = response.data.data.status
+                    this.values.description = response.data.data.description
+                    this.values.price = response.data.data.price
+                });
         },
         submit(values) {
+            console.log('submit', values)
             api.patch(`/appliances/${this.$route.params.id}`, values, {
                     headers: {
-                        'Content-Type': 'multipart/form-data',
+                        'Content-Type': 'application/x-www-form-urlencoded',
                         'Accept': 'application/json'
                     }
                 })
@@ -203,12 +209,12 @@ export default {
 
                     Toast.fire({
                         icon: 'success',
-                        title: 'Produto cadastrado com sucesso.'
+                        title: 'Produto atualizado com sucesso.'
                     })
                     this.$router.push('/admin/appliance')
                 })
                 .catch(e => {
-                    console.log(e);
+                    console.log(e.response.data.errors);
                 });
         },
     },
@@ -217,8 +223,3 @@ export default {
     }
 }
 </script>
-
-    
-<style>
-
-    </style>
